@@ -1,7 +1,7 @@
 services:
   starlight:
     build:
-      dockerfile: Dockerfile.starlight
+      dockerfile: .astro-starlight/Dockerfile.starlight
     ports:
       - "12000:4321"
     volumes:

@@ -12,6 +12,21 @@ export default defineConfig({
 		}),
 		starlight({
 			title: 'XeoDocs Docs',
+			head: [
+				{
+					tag: 'script',
+					attrs: {
+						src: 'https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js',
+					},
+				},
+				{
+					tag: 'script',
+					attrs: {
+						src: '/mermaid-zoom.js',
+						defer: true,
+					},
+				},
+			],
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/xeodocs' }],
 			sidebar: [
 				{
