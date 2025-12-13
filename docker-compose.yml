@@ -1,0 +1,18 @@
+services:
+  docs:
+    image: xeost/xeo-system-docs:latest
+    ports:
+      - "12000:4321" # Documentation Site
+      - "12001:8081" # Raw Spec Server
+      - "12002:8082" # Swagger UI
+      - "12003:8083" # Redoc
+    environment:
+      # IMPORTANT: This must match the external port mapped to 8081 (Raw Spec Server)
+      - SPEC_EXTERNAL_PORT=12001
+    volumes:
+      # Mount your content
+      - ./docs:/app/starlight/src/content/docs
+      # Mount your API specs
+      - ./openapi:/app/api-design
+      # Mount your configuration
+      - ./starlight.config.mjs:/app/starlight/starlight.config.mjs
