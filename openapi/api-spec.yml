@@ -1,0 +1,499 @@
+openapi: 3.0.3
+info:
+  title: XeoDocs API
+  description: API for XeoDocs translation orchestration system. Handles project management, language tracking, and CLI synchronization.
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.xeodocs.com/v1
+    description: Production Server
+  - url: http://localhost:8080/v1
+    description: Local Development Server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_id
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Invalid request parameters
+
+    Project:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - sourceRepoUrl
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        sourceRepoUrl:
+          type: string
+        sourceBranch:
+          type: string
+          default: main
+        description:
+          type: string
+        isActive:
+          type: boolean
+          default: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Language:
+      type: object
+      required:
+        - id
+        - projectId
+        - code
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        code:
+          type: string
+          example: es
+        name:
+          type: string
+          example: Spanish
+        domain:
+          type: string
+          example: es.xeodocs.com
+        isActive:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FileStatus:
+      type: string
+      enum: [pending, translated, outdated, ignored]
+
+    File:
+      type: object
+      required:
+        - id
+        - path
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        path:
+          type: string
+        status:
+          $ref: '#/components/schemas/FileStatus'
+        lastSyncedAt:
+          type: string
+          format: date-time
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+            apiKey:
+              type: string
+              description: Returned only for admins to configure CLI
+
+    NextFileResponse:
+      type: object
+      properties:
+        file:
+          $ref: '#/components/schemas/File'
+        prompt:
+          type: string
+          description: Contextual prompt to be used by the AI for translation
+
+    SubmitRequest:
+      type: object
+      required:
+        - fileIds
+      properties:
+        fileIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        status:
+          type: string
+          enum: [translated]
+          default: translated
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Projects
+    description: Project management
+  - name: Workflow
+    description: CLI and Translation workflow endpoints
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Admin Login
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: List all projects
+      operationId: listProjects
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Projects
+      summary: Create a new project
+      operationId: createProject
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - slug
+                - sourceRepoUrl
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                sourceRepoUrl:
+                  type: string
+                sourceBranch:
+                  type: string
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/languages:
+    get:
+      tags:
+        - Projects
+      summary: List languages for a project
+      operationId: listProjectLanguages
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of languages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Language'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Projects
+      summary: Add a language to a project
+      operationId: addProjectLanguage
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - name
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                domain:
+                  type: string
+      responses:
+        '201':
+          description: Language added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Language'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflow/next:
+    get:
+      tags:
+        - Workflow
+      summary: Get the next file to translate (CLI)
+      operationId: getNextFile
+      description: Returns the highest priority pending/outdated file for the authenticated context (project/lang).
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+          required: true
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: File details and AI prompt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NextFileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No files pending translation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflow/submit:
+    post:
+      tags:
+        - Workflow
+      summary: Submit translated files (CLI)
+      operationId: submitFiles
+      description: Marks files as translated after CLI submission.
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitRequest'
+      responses:
+        '200':
+          description: Submission accepted, file statuses updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  updatedCount:
+                    type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflow/status:
+    get:
+      tags:
+        - Workflow
+      summary: Get project translation status (CLI)
+      operationId: getProjectStatus
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+          required: true
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Status summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pendingCount:
+                    type: integer
+                  outdatedCount:
+                    type: integer
+                  totalFiles:
+                    type: integer
+                  progressPercentage:
+                    type: number
+                    format: float
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

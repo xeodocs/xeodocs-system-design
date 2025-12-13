@@ -8,20 +8,30 @@ hero:
     file: ../../assets/houston.webp
   actions:
     - text: Explore System Design
-      link: /system-design/01-overview
+      link: /system-design/01-system-overview
       icon: right-arrow
       variant: primary
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Overview
-
-**XeoDocs** is 
+## Documentation
 
 <CardGrid stagger>
 	<Card title="System Overview" icon="rocket">
-		High-level goals, core features, and repository structure.
-		[Read more →](/system-design/01-overview)
+		High-level vision, core backend responsibilities, and technology stack.
+		[Read more →](/system-design/01-system-overview)
+	</Card>
+	<Card title="Architecture" icon="puzzle">
+		Components, API, and CLI integration.
+		[Read more →](/system-design/02-architecture-and-components)
+	</Card>
+	<Card title="Database" icon="seti:db">
+		Schema design, tables, and relationships.
+		[Read more →](/system-design/03-database-schema)
+	</Card>
+	<Card title="Workflows" icon="list-format">
+		Step-by-step translation and synchronization flows.
+		[Read more →](/system-design/04-workflows)
 	</Card>
 </CardGrid>
