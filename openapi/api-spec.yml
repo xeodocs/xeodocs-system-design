@@ -9,8 +9,6 @@ info:
 servers:
   - url: https://api.xeodocs.com/v1
     description: Production Server
-  - url: http://localhost:8080/v1
-    description: Local Development Server
 
 components:
   securitySchemes:
@@ -92,10 +90,10 @@ components:
         isActive:
           type: boolean
           default: true
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
 
@@ -121,6 +119,93 @@ components:
           type: string
           format: date-time
 
+    User:
+      type: object
+      required:
+        - id
+        - email
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, user]
+          default: user
+        apiKey:
+          type: string
+          description: API Key for CLI access (sensitive)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Configuration:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+
+    UserPreference:
+      type: object
+      required:
+        - userId
+        - key
+        - value
+      properties:
+        userId:
+          type: string
+          format: uuid
+        key:
+          type: string
+        value:
+          type: string
+
+    IgnoredPath:
+      type: object
+      required:
+        - id
+        - projectId
+        - pattern
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        pattern:
+          type: string
+
+    SpecialPath:
+      type: object
+      required:
+        - id
+        - projectId
+        - purpose
+        - pattern
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+        pattern:
+          type: string
+
     LoginRequest:
       type: object
       required:
@@ -139,16 +224,7 @@ components:
         message:
           type: string
         user:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            email:
-              type: string
-            apiKey:
-              type: string
-              description: Returned only for admins to configure CLI
+          $ref: '#/components/schemas/User'
 
     NextFileResponse:
       type: object
@@ -177,8 +253,22 @@ components:
 tags:
   - name: Auth
     description: Authentication endpoints
+  - name: Users
+    description: User management
+  - name: UserPreferences
+    description: User preferences
   - name: Projects
     description: Project management
+  - name: Languages
+    description: Language management
+  - name: Files
+    description: File management per language
+  - name: Configurations
+    description: System-wide configurations
+  - name: IgnoredPaths
+    description: Project ignored paths
+  - name: SpecialPaths
+    description: Project special paths
   - name: Workflow
     description: CLI and Translation workflow endpoints
 
@@ -211,6 +301,540 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List all users
+      operationId: listUsers
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      operationId: createUser
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [admin, user]
+                  default: user
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      operationId: getUser
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Users
+      summary: Update user
+      operationId: updateUser
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [admin, user]
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '204':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{userId}/preferences:
+    get:
+      tags:
+        - UserPreferences
+      summary: List user preferences
+      operationId: listUserPreferences
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of preferences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPreference'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - UserPreferences
+      summary: Set a user preference
+      operationId: setUserPreference
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '201':
+          description: Preference set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreference'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{userId}/preferences/{key}:
+    get:
+      tags:
+        - UserPreferences
+      summary: Get user preference
+      operationId: getUserPreference
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: key
+          schema:
+            type: string
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Preference details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreference'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Preference not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - UserPreferences
+      summary: Delete user preference
+      operationId: deleteUserPreference
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: key
+          schema:
+            type: string
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '204':
+          description: Preference deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Preference not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /configurations:
+    get:
+      tags:
+        - Configurations
+      summary: List system configurations
+      operationId: listConfigurations
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Configuration'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Configurations
+      summary: Create a configuration
+      operationId: createConfiguration
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '201':
+          description: Configuration created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /configurations/{key}:
+    get:
+      tags:
+        - Configurations
+      summary: Get configuration
+      operationId: getConfiguration
+      parameters:
+        - in: path
+          name: key
+          schema:
+            type: string
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Configuration details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Configuration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Configurations
+      summary: Update configuration
+      operationId: updateConfiguration
+      parameters:
+        - in: path
+          name: key
+          schema:
+            type: string
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: string
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Configuration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Configurations
+      summary: Delete configuration
+      operationId: deleteConfiguration
+      parameters:
+        - in: path
+          name: key
+          schema:
+            type: string
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '204':
+          description: Configuration deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Configuration not found
           content:
             application/json:
               schema:
@@ -286,10 +910,133 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /projects/{projectId}/languages:
+  /projects/{projectId}:
     get:
       tags:
         - Projects
+      summary: Get a project by ID
+      operationId: getProject
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Projects
+      summary: Update a project
+      operationId: updateProject
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                sourceRepoUrl:
+                  type: string
+                sourceBranch:
+                  type: string
+                description:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Projects
+      summary: Delete a project
+      operationId: deleteProject
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Project deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/languages:
+    get:
+      tags:
+        - Languages
       summary: List languages for a project
       operationId: listProjectLanguages
       parameters:
@@ -325,7 +1072,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     post:
       tags:
-        - Projects
+        - Languages
       summary: Add a language to a project
       operationId: addProjectLanguage
       parameters:
@@ -368,6 +1115,836 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/languages/{languageId}:
+    get:
+      tags:
+        - Languages
+      summary: Get a language by ID
+      operationId: getProjectLanguage
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Language details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Language'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Language not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Languages
+      summary: Update a language
+      operationId: updateProjectLanguage
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                domain:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: Language updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Language'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Language not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Languages
+      summary: Remove a language from project
+      operationId: removeProjectLanguage
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Language removed successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Language not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/ignored-paths:
+    get:
+      tags:
+        - IgnoredPaths
+      summary: List ignored paths for a project
+      operationId: listProjectIgnoredPaths
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of ignored paths
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IgnoredPath'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - IgnoredPaths
+      summary: Add an ignored path to a project
+      operationId: addProjectIgnoredPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - pattern
+              properties:
+                pattern:
+                  type: string
+      responses:
+        '201':
+          description: Ignored path added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IgnoredPath'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/ignored-paths/{ignoredPathId}:
+    get:
+      tags:
+        - IgnoredPaths
+      summary: Get an ignored path
+      operationId: getProjectIgnoredPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: ignoredPathId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Ignored path details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IgnoredPath'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Ignored path not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - IgnoredPaths
+      summary: Update an ignored path
+      operationId: updateProjectIgnoredPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: ignoredPathId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pattern:
+                  type: string
+      responses:
+        '200':
+          description: Ignored path updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IgnoredPath'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Ignored path not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - IgnoredPaths
+      summary: Remove an ignored path
+      operationId: removeProjectIgnoredPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: ignoredPathId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '204':
+          description: Ignored path removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Ignored path not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/special-paths:
+    get:
+      tags:
+        - SpecialPaths
+      summary: List special paths for a project
+      operationId: listProjectSpecialPaths
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of special paths
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpecialPath'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - SpecialPaths
+      summary: Add a special path to a project
+      operationId: addProjectSpecialPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - purpose
+                - pattern
+              properties:
+                purpose:
+                  type: string
+                pattern:
+                  type: string
+      responses:
+        '201':
+          description: Special path added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialPath'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/special-paths/{specialPathId}:
+    get:
+      tags:
+        - SpecialPaths
+      summary: Get a special path
+      operationId: getProjectSpecialPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: specialPathId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Special path details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialPath'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Special path not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - SpecialPaths
+      summary: Update a special path
+      operationId: updateProjectSpecialPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: specialPathId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purpose:
+                  type: string
+                pattern:
+                  type: string
+      responses:
+        '200':
+          description: Special path updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialPath'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Special path not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - SpecialPaths
+      summary: Remove a special path
+      operationId: removeProjectSpecialPath
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: specialPathId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '204':
+          description: Special path removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Special path not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/languages/{languageId}/files:
+    get:
+      tags:
+        - Files
+      summary: List files for a project language
+      operationId: listProjectLanguageFiles
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/FileStatus'
+          description: Filter by status
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project or Language not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Files
+      summary: Create/Register a file for a language
+      operationId: createProjectLanguageFile
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - path
+              properties:
+                path:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/FileStatus'
+                  default: pending
+      responses:
+        '201':
+          description: File created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/languages/{languageId}/files/{fileId}:
+    get:
+      tags:
+        - Files
+      summary: Get a file
+      operationId: getProjectLanguageFile
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: fileId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: File details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        - Files
+      summary: Update a file
+      operationId: updateProjectLanguageFile
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: fileId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/FileStatus'
+      responses:
+        '200':
+          description: File updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Files
+      summary: Delete a file
+      operationId: deleteProjectLanguageFile
+      parameters:
+        - in: path
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: languageId
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: fileId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '204':
+          description: File deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: File not found
           content:
             application/json:
               schema:
