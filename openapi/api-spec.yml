@@ -43,6 +43,16 @@ components:
           type: integer
           example: 5
 
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          example: email
+        message:
+          type: string
+          example: Invalid email format
+
     Error:
       type: object
       properties:
@@ -52,6 +62,10 @@ components:
         message:
           type: string
           example: Invalid request parameters
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
 
     Project:
       type: object
@@ -364,6 +378,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout
+      operationId: logout
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /users:
     get:
       tags:
@@ -386,6 +426,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -456,6 +508,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Get current user
+      operationId: getCurrentUser
+      security:
+        - cookieAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
         '401':
           description: Unauthorized
           content:
@@ -621,6 +701,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -810,6 +902,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -922,7 +1026,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:
+    patch:
       tags:
         - Configurations
       summary: Update configuration
@@ -1029,6 +1133,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -1273,6 +1389,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -1535,6 +1663,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -1789,6 +1929,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
@@ -2059,6 +2211,18 @@ paths:
           schema:
             type: integer
             default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+          description: Sort order
       security:
         - cookieAuth: []
         - apiKeyAuth: []
