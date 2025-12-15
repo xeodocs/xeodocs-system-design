@@ -12,10 +12,18 @@ description: The 5-phase workflow from automatic detection to deployment.
 4. Sends a notification to the administrator/translator (Email/Dashboard).
 
 ## Phase 2: Local Synchronization (Translator + CLI)
-The translator opens their terminal and runs `xeodocs sync`. The CLI automatically performs:
-1. **Authentication:** Verifies credentials against the API.
+Before executing `xeodocs sync`, the translator must:
+1. **Authenticate:** Run `xeodocs login` if not done before.
+2. **Clone Repository:** Run `xeodocs clone` if not done before.
+3. **Open Directory:** Open the cloned repository directory with their favorite editor (Windsurf, Cursor, VSCode).
+4. **Switch Branch:** Switch to the `local-[lang_code]` branch using the editor's graphical options (the branch should already exist in the repository).
+
+Now, proceed to run `xeodocs sync`. The CLI automatically performs:
+1. **Authentication Check:** Verifies credentials against the API.
 2. **Git Ops:** Pulls the `main` branch and merges changes into `local-[lang_code]`.
    - If conflicts arise, prompts the user to resolve them using standard Git tools.
+
+**Special Case:** A `xeodocs sync` can be executed prior to switching to the `local-[lang_code]` branch to download the branch itself (e.g., when the target language was configured after the repository was locally cloned).
 
 ## Phase 3: Assisted Translation (Human + AI)
 1. **Consultation via `xeodocs next`:**

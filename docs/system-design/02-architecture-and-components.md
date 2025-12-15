@@ -17,7 +17,7 @@ description: Backend API, CLI, git strategy, and special file management.
 
 A lightweight tool developed in Go installed in the translator's local environment. Its function is to abstract Git complexity and generate context for the AI "on the fly".
 
-- **Key Commands:** `xeodocs login`, `xeodocs sync`, `xeodocs status`, `xeodocs list`, `xeodocs next`, `xeodocs submit`.
+- **Key Commands:** `xeodocs login`, `xeodocs clone`, `xeodocs sync`, `xeodocs status`, `xeodocs list`, `xeodocs next`, `xeodocs submit`, `xeodocs logout`, `xeodocs --help`, `xeodocs --version`.
 
 ## 3. Git Repository Strategy
 
