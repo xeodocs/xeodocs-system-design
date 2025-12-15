@@ -4,11 +4,16 @@ description: The 5-phase workflow from automatic detection to deployment.
 ---
 
 ## Phase 1: Automatic Detection (Server)
-1. System detects a new *commit* in the original repository (upstream).
-2. Synchronizes the `main` branch of the *fork*.
-3. Analyzes the *diff* and updates the database:
-   - Marks affected files as `outdated` (if they already existed).
-   - Marks new files as `pending`.
+1. **Polling & Detection:** The system periodically checks the upstream repository (interval defined in `configurations`).
+   - Updates `projects.last_checked_at`.
+   - Compares the upstream latest commit with `projects.last_commit_hash`.
+2. **Synchronization:** If a new commit is detected:
+   - Updates `projects.last_commit_hash`.
+   - Synchronizes the `main` branch of the *fork*.
+3. **Analysis:** Analyzes the *diff* and updates the database:
+   - Calculates new checksums for modified files.
+   - **Outdated:** If `new_checksum != checksum_original` for existing files, marks them as `outdated`.
+   - **Pending:** Marks new files as `pending` and stores their `checksum_original`.
 4. Sends a notification to the administrator/translator (Email/Dashboard).
 
 ## Phase 2: Local Synchronization (Translator + CLI)

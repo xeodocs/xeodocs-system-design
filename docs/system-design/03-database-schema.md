@@ -25,6 +25,8 @@ Stores information about documentation projects.
 - `source_website_url` (String) - Technology website URL
 - `source_repo_url` (String) - Upstream repository URL
 - `source_branch` (String) - Default: 'main'
+- `last_checked_at` (Timestamp) - Last time the system checked for updates
+- `last_commit_hash` (String) - Hash of the last processed commit
 - `description` (Text, Nullable)
 - `is_active` (Boolean) - Default: true
 - `created_at` (Timestamp)
@@ -47,17 +49,19 @@ Tracks the state of individual files within a project's language scope.
 - `project_id` (UUID, FK -> projects.id)
 - `language_id` (UUID, FK -> languages.id)
 - `path` (String) - Relative path in the repository
-- `checksum_original` (String) - Checksum of the file in the upstream 'main' branch
-- `checksum_translated` (String) - Checksum of the file in the language branch
+- `checksum_original` (String) - Hash (SHA-256) of the upstream file content. Used to detect updates in the source.
+- `checksum_translated` (String) - Hash of the translated file content. Used to validate that the translation matches the current file state.
 - `status` (Enum: `pending`, `translated`, `outdated`)
 - `last_synced_at` (Timestamp)
 - `updated_at` (Timestamp)
+
+> **Design Note:** While Git is the source of truth for file content, storing checksums in the database allows the API to serve project status queries (e.g., "Show me all outdated files") in O(1) time without performing expensive Git operations or file I/O for every request. It effectively acts as a high-performance state index.
 
 ### `configurations`
 Stores system-wide key/value configuration records.
 - `key` (String, PK)
 - `value` (Text)
-- **Usage:** Stores general configuration values, such as prompt templates.
+- **Usage:** Stores general configuration values, such as prompt templates or synchronization intervals.
 
 ### `user_preferences` (Admin Configuration)
 Stores administrator preferences as key/value records.

@@ -14,8 +14,9 @@ components:
   securitySchemes:
     cookieAuth:
       type: apiKey
+      description: JWT authentication stored in HTTPOnly Secure Cookie
       in: cookie
-      name: session_id
+      name: auth_token
     apiKeyAuth:
       type: apiKey
       in: header
@@ -110,6 +111,13 @@ components:
         sourceBranch:
           type: string
           default: main
+        lastCheckedAt:
+          type: string
+          format: date-time
+          description: Last time the system checked for updates
+        lastCommitHash:
+          type: string
+          description: Hash of the last processed commit
         description:
           type: string
           maxLength: 500

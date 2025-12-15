@@ -23,7 +23,7 @@ description: Production/dev infrastructure and security measures.
 
 ### Authentication
 - **Admin Panel:**
-  - Session-based authentication using HTTPOnly Secure Cookies.
+  - Authentication using JWT stored in HTTPOnly Secure Cookies.
   - Standard Username/Password login.
 - **CLI (Command Line Interface):**
   - Authenticates via a long-lived API Key assigned to an administrator.
@@ -32,7 +32,7 @@ description: Production/dev infrastructure and security measures.
 ### Access Control
 - **Role-Based Access:** Currently single role (Administrator), but designed to support granular permissions in the future.
 - **API Security:**
-  - Endpoints are protected and require valid authentication (Session or API Key).
+  - Endpoints are protected and require valid authentication (JWT/Cookie or API Key).
   - Input validation on all endpoints to prevent injection attacks.
 
 ### Data Protection
