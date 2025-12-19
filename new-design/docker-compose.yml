@@ -1,0 +1,12 @@
+services:
+  xeocontext:
+    # Prod option, best performance
+    # image: xeost/xeocontext:latest
+    # Dev option, with live-reload
+    image: xeost/xeocontext-live-reload:latest
+    container_name: xeocontext_example_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app/content
+    restart: unless-stopped

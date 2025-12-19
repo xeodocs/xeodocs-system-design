@@ -1,0 +1,43 @@
+post:
+  operationId: registerUser
+  summary: Register new user
+  tags:
+    - Auth
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            fullName:
+              type: string
+            email:
+              type: string
+              format: email
+            password:
+              type: string
+          required:
+            - fullName
+            - email
+            - password
+  responses:
+    '201':
+      description: User created
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '../schemas/AuthResponse.yaml'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
