@@ -10,7 +10,7 @@ When analyzing this repository or generating code based on it, adhere to the fol
 
 ## 1. Directory Structure Overview
 
-The content is located at the **repository root**. It follows a strict separation between **Global Architecture** and **Bounded Contexts (Domains)**.
+The content is located at the **repository root**. It follows a strict separation between **Global Architecture** and **Bounded Contexts (Domains)** (Domain-Driven Structure).
 
 ```text
 .
