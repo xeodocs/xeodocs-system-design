@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  title: XeoDocs API
+  description: |
+    API for XeoDocs translation orchestration system. Handles project management, language tracking, and CLI synchronization.
+    
+    This is the Unified Gateway Specification that aggregates all domain-specific specifications.
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.xeodocs.com/v1
+    description: Production Server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      description: JWT authentication stored in HTTPOnly Secure Cookie
+      in: cookie
+      name: auth_token
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  headers:
+    X-RateLimit-Limit:
+      $ref: '../../domains/common/components/headers/X-RateLimit-Limit.yaml'
+    X-RateLimit-Remaining:
+      $ref: '../../domains/common/components/headers/X-RateLimit-Remaining.yaml'
+    X-RateLimit-Reset:
+      $ref: '../../domains/common/components/headers/X-RateLimit-Reset.yaml'
+
+  schemas:
+    # Common
+    Error:
+      $ref: '../../domains/common/components/schemas/Error.yaml'
+    ErrorDetail:
+      $ref: '../../domains/common/components/schemas/ErrorDetail.yaml'
+    Pagination:
+      $ref: '../../domains/common/components/schemas/Pagination.yaml'
+    
+    # Identity
+    User:
+      $ref: '../../domains/identity/components/schemas/User.yaml'
+    UserDetail:
+      $ref: '../../domains/identity/components/schemas/UserDetail.yaml'
+    UserPreference:
+      $ref: '../../domains/identity/components/schemas/UserPreference.yaml'
+    LoginRequest:
+      $ref: '../../domains/identity/components/schemas/LoginRequest.yaml'
+    LoginResponse:
+      $ref: '../../domains/identity/components/schemas/LoginResponse.yaml'
+    
+    # Projects
+    Project:
+      $ref: '../../domains/projects/components/schemas/Project.yaml'
+    Language:
+      $ref: '../../domains/projects/components/schemas/Language.yaml'
+    File:
+      $ref: '../../domains/projects/components/schemas/File.yaml'
+    FileStatus:
+      $ref: '../../domains/projects/components/schemas/FileStatus.yaml'
+    IgnoredPath:
+      $ref: '../../domains/projects/components/schemas/IgnoredPath.yaml'
+    SpecialPath:
+      $ref: '../../domains/projects/components/schemas/SpecialPath.yaml'
+    NextFileResponse:
+      $ref: '../../domains/projects/components/schemas/NextFileResponse.yaml'
+    SubmitRequest:
+      $ref: '../../domains/projects/components/schemas/SubmitRequest.yaml'
+    SubmitResponse:
+      $ref: '../../domains/projects/components/schemas/SubmitResponse.yaml'
+    
+    # Configuration
+    Configuration:
+      $ref: '../../domains/configuration/components/schemas/Configuration.yaml'
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Users
+    description: User management
+  - name: UserPreferences
+    description: User preferences
+  - name: Projects
+    description: Project management
+  - name: Languages
+    description: Language management
+  - name: Files
+    description: File management per language
+  - name: Configurations
+    description: System-wide configurations
+  - name: IgnoredPaths
+    description: Project ignored paths
+  - name: SpecialPaths
+    description: Project special paths
+  - name: Workflow
+    description: CLI and Translation workflow endpoints
+
+paths:
+  # System
+  /health:
+    get:
+      tags:
+        - System
+      summary: System health check
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                    example: 1.0.0
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Identity Domain
+  /auth/login:
+    $ref: '../../domains/identity/components/paths/auth_login.yaml'
+  /auth/logout:
+    $ref: '../../domains/identity/components/paths/auth_logout.yaml'
+  /users:
+    $ref: '../../domains/identity/components/paths/users.yaml'
+  /users/me:
+    $ref: '../../domains/identity/components/paths/users_me.yaml'
+  /users/{userId}:
+    $ref: '../../domains/identity/components/paths/users_id.yaml'
+  /users/{userId}/preferences:
+    $ref: '../../domains/identity/components/paths/user_preferences.yaml'
+  /users/{userId}/preferences/{key}:
+    $ref: '../../domains/identity/components/paths/user_preferences_key.yaml'
+
+  # Configuration Domain
+  /configurations:
+    $ref: '../../domains/configuration/components/paths/configurations.yaml'
+  /configurations/{key}:
+    $ref: '../../domains/configuration/components/paths/configurations_key.yaml'
+
+  # Projects Domain
+  /projects:
+    $ref: '../../domains/projects/components/paths/projects.yaml'
+  /projects/{projectId}:
+    $ref: '../../domains/projects/components/paths/projects_id.yaml'
+  /projects/{projectId}/languages:
+    $ref: '../../domains/projects/components/paths/languages.yaml'
+  /projects/{projectId}/languages/{languageId}:
+    $ref: '../../domains/projects/components/paths/languages_id.yaml'
+  /projects/{projectId}/ignored-paths:
+    $ref: '../../domains/projects/components/paths/ignored_paths.yaml'
+  /projects/{projectId}/ignored-paths/{ignoredPathId}:
+    $ref: '../../domains/projects/components/paths/ignored_paths_id.yaml'
+  /projects/{projectId}/special-paths:
+    $ref: '../../domains/projects/components/paths/special_paths.yaml'
+  /projects/{projectId}/special-paths/{specialPathId}:
+    $ref: '../../domains/projects/components/paths/special_paths_id.yaml'
+  /projects/{projectId}/languages/{languageId}/files:
+    $ref: '../../domains/projects/components/paths/files.yaml'
+  /projects/{projectId}/languages/{languageId}/files/{fileId}:
+    $ref: '../../domains/projects/components/paths/files_id.yaml'
+  /projects/{projectId}/languages/{languageId}/next-file:
+    $ref: '../../domains/projects/components/paths/workflow_next.yaml'
+  /projects/{projectId}/languages/{languageId}/submissions:
+    $ref: '../../domains/projects/components/paths/workflow_submit.yaml'
+  /projects/{projectId}/languages/{languageId}/status:
+    $ref: '../../domains/projects/components/paths/workflow_status.yaml'
