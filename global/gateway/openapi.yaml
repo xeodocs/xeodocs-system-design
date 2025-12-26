@@ -28,56 +28,56 @@ components:
 
   headers:
     X-RateLimit-Limit:
-      $ref: '../../domains/common/components/headers/X-RateLimit-Limit.yaml'
+      $ref: '../../domains/common/openapi.yaml#/components/headers/X-RateLimit-Limit'
     X-RateLimit-Remaining:
-      $ref: '../../domains/common/components/headers/X-RateLimit-Remaining.yaml'
+      $ref: '../../domains/common/openapi.yaml#/components/headers/X-RateLimit-Remaining'
     X-RateLimit-Reset:
-      $ref: '../../domains/common/components/headers/X-RateLimit-Reset.yaml'
+      $ref: '../../domains/common/openapi.yaml#/components/headers/X-RateLimit-Reset'
 
   schemas:
     # Common
     Error:
-      $ref: '../../domains/common/components/schemas/Error.yaml'
+      $ref: '../../domains/common/openapi.yaml#/components/schemas/Error'
     ErrorDetail:
-      $ref: '../../domains/common/components/schemas/ErrorDetail.yaml'
+      $ref: '../../domains/common/openapi.yaml#/components/schemas/ErrorDetail'
     Pagination:
-      $ref: '../../domains/common/components/schemas/Pagination.yaml'
+      $ref: '../../domains/common/openapi.yaml#/components/schemas/Pagination'
     
     # Identity
     User:
-      $ref: '../../domains/identity/components/schemas/User.yaml'
+      $ref: '../../domains/identity/openapi.yaml#/components/schemas/User'
     UserDetail:
-      $ref: '../../domains/identity/components/schemas/UserDetail.yaml'
+      $ref: '../../domains/identity/openapi.yaml#/components/schemas/UserDetail'
     UserPreference:
-      $ref: '../../domains/identity/components/schemas/UserPreference.yaml'
+      $ref: '../../domains/identity/openapi.yaml#/components/schemas/UserPreference'
     LoginRequest:
-      $ref: '../../domains/identity/components/schemas/LoginRequest.yaml'
+      $ref: '../../domains/identity/openapi.yaml#/components/schemas/LoginRequest'
     LoginResponse:
-      $ref: '../../domains/identity/components/schemas/LoginResponse.yaml'
+      $ref: '../../domains/identity/openapi.yaml#/components/schemas/LoginResponse'
     
     # Projects
     Project:
-      $ref: '../../domains/projects/components/schemas/Project.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/Project'
     Language:
-      $ref: '../../domains/projects/components/schemas/Language.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/Language'
     File:
-      $ref: '../../domains/projects/components/schemas/File.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/File'
     FileStatus:
-      $ref: '../../domains/projects/components/schemas/FileStatus.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/FileStatus'
     IgnoredPath:
-      $ref: '../../domains/projects/components/schemas/IgnoredPath.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/IgnoredPath'
     SpecialPath:
-      $ref: '../../domains/projects/components/schemas/SpecialPath.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/SpecialPath'
     NextFileResponse:
-      $ref: '../../domains/projects/components/schemas/NextFileResponse.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/NextFileResponse'
     SubmitRequest:
-      $ref: '../../domains/projects/components/schemas/SubmitRequest.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/SubmitRequest'
     SubmitResponse:
-      $ref: '../../domains/projects/components/schemas/SubmitResponse.yaml'
+      $ref: '../../domains/projects/openapi.yaml#/components/schemas/SubmitResponse'
     
     # Configuration
     Configuration:
-      $ref: '../../domains/configuration/components/schemas/Configuration.yaml'
+      $ref: '../../domains/configuration/openapi.yaml#/components/schemas/Configuration'
 
 tags:
   - name: Auth
@@ -146,50 +146,50 @@ paths:
 
   # Identity Domain
   /auth/login:
-    $ref: '../../domains/identity/components/paths/auth_login.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1auth~1login'
   /auth/logout:
-    $ref: '../../domains/identity/components/paths/auth_logout.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1auth~1logout'
   /users:
-    $ref: '../../domains/identity/components/paths/users.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1users'
   /users/me:
-    $ref: '../../domains/identity/components/paths/users_me.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1users~1me'
   /users/{userId}:
-    $ref: '../../domains/identity/components/paths/users_id.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1users~1{userId}'
   /users/{userId}/preferences:
-    $ref: '../../domains/identity/components/paths/user_preferences.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1users~1{userId}~1preferences'
   /users/{userId}/preferences/{key}:
-    $ref: '../../domains/identity/components/paths/user_preferences_key.yaml'
+    $ref: '../../domains/identity/openapi.yaml#/paths/~1users~1{userId}~1preferences~1{key}'
 
   # Configuration Domain
   /configurations:
-    $ref: '../../domains/configuration/components/paths/configurations.yaml'
+    $ref: '../../domains/configuration/openapi.yaml#/paths/~1configurations'
   /configurations/{key}:
-    $ref: '../../domains/configuration/components/paths/configurations_key.yaml'
+    $ref: '../../domains/configuration/openapi.yaml#/paths/~1configurations~1{key}'
 
   # Projects Domain
   /projects:
-    $ref: '../../domains/projects/components/paths/projects.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects'
   /projects/{projectId}:
-    $ref: '../../domains/projects/components/paths/projects_id.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}'
   /projects/{projectId}/languages:
-    $ref: '../../domains/projects/components/paths/languages.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages'
   /projects/{projectId}/languages/{languageId}:
-    $ref: '../../domains/projects/components/paths/languages_id.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages~1{languageId}'
   /projects/{projectId}/ignored-paths:
-    $ref: '../../domains/projects/components/paths/ignored_paths.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1ignored-paths'
   /projects/{projectId}/ignored-paths/{ignoredPathId}:
-    $ref: '../../domains/projects/components/paths/ignored_paths_id.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1ignored-paths~1{ignoredPathId}'
   /projects/{projectId}/special-paths:
-    $ref: '../../domains/projects/components/paths/special_paths.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1special-paths'
   /projects/{projectId}/special-paths/{specialPathId}:
-    $ref: '../../domains/projects/components/paths/special_paths_id.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1special-paths~1{specialPathId}'
   /projects/{projectId}/languages/{languageId}/files:
-    $ref: '../../domains/projects/components/paths/files.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages~1{languageId}~1files'
   /projects/{projectId}/languages/{languageId}/files/{fileId}:
-    $ref: '../../domains/projects/components/paths/files_id.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages~1{languageId}~1files~1{fileId}'
   /projects/{projectId}/languages/{languageId}/next-file:
-    $ref: '../../domains/projects/components/paths/workflow_next.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages~1{languageId}~1next-file'
   /projects/{projectId}/languages/{languageId}/submissions:
-    $ref: '../../domains/projects/components/paths/workflow_submit.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages~1{languageId}~1submissions'
   /projects/{projectId}/languages/{languageId}/status:
-    $ref: '../../domains/projects/components/paths/workflow_status.yaml'
+    $ref: '../../domains/projects/openapi.yaml#/paths/~1projects~1{projectId}~1languages~1{languageId}~1status'

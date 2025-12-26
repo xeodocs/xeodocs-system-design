@@ -85,7 +85,8 @@ You must use a **Fragmented Architecture** that supports two views: **Domain Vie
 
 1. **Source of Truth (Components):** The actual definitions (Schemas, Paths, Messages) reside in `/domains/{name}/components/`.
 2. **Domain Root:** The file `/domains/{name}/openapi.yaml` aggregates only the components of that specific domain.
-3. **Master Root:** The file `/global/gateway/openapi.yaml` aggregates components from **ALL** domains using relative paths (e.g., `$ref: '../../domains/identity/components/paths/login.yaml'`).
+3. **Master Root:** The file `/global/gateway/openapi.yaml` aggregates definitions from **ALL** domains by referencing their **Domain Roots** (e.g., `$ref: '../../domains/common/openapi.yaml#/components/schemas/Error'`). It must NOT reference internal domain components directly.
+
 
 **Required Folder Structure for Specs:**
 
