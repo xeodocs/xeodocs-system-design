@@ -6,11 +6,11 @@ description: Production/dev infrastructure and security measures.
 ## Infrastructure
 
 ### Production Environment
-- **Hosting:** Docker Swarm on Virtual Private Server (VPS).
+- **Hosting:** Kubernetes cluster with K3s on Virtual Private Server (VPS).
 - **Database:** PostgreSQL (managed by Supabase).
 - **Backend:** Go (Modular Monolith architecture) running in Docker containers.
 - **Frontend (Web):** Next.js (SSG/SSR) running in Docker containers.
-- **Frontend (Admin):** Tauri (Desktop App) or Next.js Web App interacting with the API.
+- **Frontend (Admin):** Next.js Web App interacting with the API.
 - **Email Service:** Resend.
 
 ### Development Environment

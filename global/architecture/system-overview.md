@@ -38,16 +38,16 @@ The core of the system, hosted on the server, handles the following critical res
 ### Backend & Infrastructure
 - **Core:** Go (Modular Monolith).
 - **Database:** PostgreSQL (Supabase) - Stores users, projects, configuration, and synchronization state of each file.
-- **Hosting:** Docker Swarm on VPS.
+- **Hosting:** Kubernetes cluster with K3s on VPS.
 - **Email Notifications:** Resend.
 
 ### Frontend
 - **Public Site:** Next.js (SSG/SSR).
-- **Admin Panel:** Next.js + Tauri (Desktop).
+- **Admin Panel:** Next.js.
 - **Communication API:** REST (consumed by Frontend and CLI).
 
 ### Development Environment
 - **Public Site:** Next.js development tools.
-- **Admin Panel:** Next.js and Tauri development tools.
+- **Admin Panel:** Next.jsdevelopment tools.
 - **Backend and Database:** Docker Compose on Docker Desktop.
 - **GitHub:** The same GitHub account as production, but fork names will have a prefix [`staging-` | `dev-`] depending on the environment, distinguishing them from production forks which have no prefix.

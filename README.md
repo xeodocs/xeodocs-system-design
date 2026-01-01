@@ -1,38 +1,26 @@
-# ExampleApp System Design
+# XeoDocs System Design
 
-Welcome to the System Design repository for **ExampleApp**.
+Welcome to the System Design repository for **XeoDocs**, a platform designed for the orchestration and lifecycle management of open-source documentation translation.
 
 ## Architecture Overview
 
-This system follows a **Domain-Driven Design (DDD)** approach, split into the following domains:
+The repository is organized following a **Domain-Driven Structure**, separating cross-cutting concerns from specific business logic.
 
+### [Global Architecture](/global)
+The `/global` directory defines the "laws of the system" and cross-cutting architectural concerns:
+- **[Gateway](/global/gateway)**: Unified System API (Master Roots) that aggregates all domain specs.
+- **Architecture & Standards**: Centralized decisions, infrastructure, and coding conventions.
+
+### [Domain Modules](/domains)
+Each folder under `/domains` represents a specific business capability (Bounded Context). This system is split into the following domains:
+
+-   **[Common](/domains/common)**: Shared components, schemas, and standards (error handling, pagination).
+-   **[Configuration](/domains/configuration)**: System-wide dynamic settings and operational parameters.
 -   **[Identity](/domains/identity)**: User management and authentication.
+-   **[Projects](/domains/projects)**: Lifecycle of documentation projects, languages, and synchronization logic.
 
 ## API Specifications
 
 This repository contains the authoritative API definitions:
 
 -   **Rest API (OpenAPI)**: Aggregated at [Global Gateway](/global/gateway/openapi.yaml).
-
-## Content Validation
-
-It is recommended to validate your spec files before committing changes to ensure the viewer renders them correctly.
-
-### OpenAPI Validation
-You can use [Redocly CLI](https://redocly.com/docs/cli/) to lint and bundle your OpenAPI definitions.
-
-```bash
-# Lint the main gateway file (and all its references)
-pnpm --package=@redocly/cli dlx redocly lint content/global/gateway/openapi.yaml
-
-# Lint a specific domain file
-pnpm --package=@redocly/cli dlx redocly lint content/domains/identity/components/paths/auth_login.yaml
-```
-
-### AsyncAPI Validation
-You can use [AsyncAPI CLI](https://www.asyncapi.com/docs/tools/cli) to validate your AsyncAPI definitions.
-
-```bash
-# Validate the main gateway file
-pnpm dlx @asyncapi/cli validate content/global/gateway/asyncapi.yaml
-```
