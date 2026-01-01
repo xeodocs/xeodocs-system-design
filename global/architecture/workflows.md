@@ -7,6 +7,43 @@ description: The 5-phase workflow from automatic detection to deployment.
 
 The XeoDocs workflow orchestrates the interaction between the Background Worker, the Translator (via CLI), and the Deployment pipeline.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Upstream as Upstream Repo
+    participant Worker as Background Worker
+    participant API as XeoDocs API/DB
+    participant CLI as Translator (CLI)
+    participant AI as AI Agent
+    participant Fork as XeoDocs Fork
+
+    Note over API, Fork: Phase 0: Provisioning
+    API->>Fork: Create/Verify Fork
+
+    Note over Upstream, API: Phase 1: Detection
+    Worker->>Upstream: Monitor for updates
+    Worker->>API: Mark files as outdated/pending
+
+    Note over API, CLI: Phase 2: Local Sync
+    CLI->>API: xeodocs login
+    CLI->>Fork: xeodocs clone / sync
+
+    Note over API, AI: Phase 3: Assisted Translation
+    CLI->>API: xeodocs next
+    API-->>CLI: Return translation context
+    CLI->>AI: Provide context
+    AI->>CLI: Generate translation
+
+    Note over API, Fork: Phase 4: Delivery
+    CLI->>API: xeodocs submit (Validation)
+    API->>API: Update status to 'translated'
+    CLI->>Fork: git push
+
+    Note over Fork: Phase 5: Deployment
+    Fork->>Fork: PR Merged
+    Fork->>Fork: CI/CD Deploys Site
+```
+
 Detailed business rules and logic are defined in the **[Projects Domain Workflows](../../domains/projects/workflows)**.
 
 ## Phase 0: Project Provisioning

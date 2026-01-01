@@ -13,7 +13,7 @@ Stores administrator accounts.
 - `name` (String)
 - `email` (String, Unique)
 - `password_hash` (String)
-- `api_key` (String, Unique) - Used for CLI authentication
+- `api_key_hash` (String, Unique) - Secure hash of the API Key used for CLI authentication
 - `created_at` (Timestamp)
 - `updated_at` (Timestamp)
 

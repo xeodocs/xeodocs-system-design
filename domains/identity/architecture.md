@@ -22,4 +22,4 @@ domain: identity
 
 ## Data Protection
 - **Passwords:** Hashed using bcrypt/argon2 before storage.
-- **API Keys:** Generated securely and stored in the database.
+- **API Keys:** Generated securely and stored as hashes in the database. Only the raw key provided at creation time is usable for authentication.
