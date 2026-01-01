@@ -7,7 +7,7 @@ description: The 5-phase workflow from automatic detection to deployment.
 
 The XeoDocs workflow orchestrates the interaction between the Background Worker, the Translator (via CLI), and the Deployment pipeline.
 
-Detailed business rules and logic are defined in the **[Projects Domain Workflows](../../domains/projects/workflows.md)**.
+Detailed business rules and logic are defined in the **[Projects Domain Workflows](../../domains/projects/workflows)**.
 
 ## Phase 0: Project Provisioning
 *Triggered by API interactions.*
@@ -20,7 +20,7 @@ Detailed business rules and logic are defined in the **[Projects Domain Workflow
 
 - **Action:** Periodic monitoring of upstream repositories.
 - **Logic:** Detects changes (Diff Analysis) and marks files as `outdated` or `pending`.
-- **See:** [Automatic Synchronization Logic](../../domains/projects/workflows.md#1-automatic-synchronization-background-worker).
+- **See:** [Automatic Synchronization Logic](../../domains/projects/workflows#1-automatic-synchronization-background-worker).
 
 ## Phase 2: Local Synchronization
 *Triggered by Translator (CLI).*
@@ -35,14 +35,14 @@ Detailed business rules and logic are defined in the **[Projects Domain Workflow
 1.  **Selection:** `xeodocs next` queries the API for the next task.
 2.  **Processing:** AI Agent (Windsurf/Cursor) translates content using context-aware prompts.
 3.  **Classification:** Files are locally categorized as `translated` or `irrelevant`.
-4.  **See:** [Assisted Translation Logic](../../domains/projects/workflows.md#2-assisted-translation-logic-next-file).
+4.  **See:** [Assisted Translation Logic](../../domains/projects/workflows#2-assisted-translation-logic-next-file).
 
 ## Phase 4: Delivery and Validation
 *Triggered by Translator (CLI).*
 
 1.  **Submit:** `xeodocs submit` performs validation and pushes changes.
 2.  **State Update:** System updates database status to `translated`.
-3.  **See:** [Submission & Validation](../../domains/projects/workflows.md#3-submission--validation).
+3.  **See:** [Submission & Validation](../../domains/projects/workflows#3-submission--validation).
 
 ## Phase 5: Deployment
 *Triggered by Pull Request.*

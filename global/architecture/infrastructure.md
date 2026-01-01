@@ -22,7 +22,7 @@ description: Production/dev infrastructure and security measures.
 ## Security
 
 ### Authentication & Access Control
-Authentication strategies (JWT, API Keys) and Access Control logic are defined in the **[Identity Architecture](../../domains/identity/architecture.md)**.
+Authentication strategies (JWT, API Keys) and Access Control logic are defined in the **[Identity Architecture](../../domains/identity/architecture)**.
 
 ### Data Protection
 - **Connection:** All communication between CLI, Frontend, and Backend should be over HTTPS.

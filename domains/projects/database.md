@@ -48,18 +48,18 @@ Tracks the state of individual files within a project's language scope.
 > **Design Note:** While Git is the source of truth for file content, storing checksums in the database allows the API to serve project status queries (e.g., "Show me all outdated files") in O(1) time without performing expensive Git operations or file I/O for every request. It effectively acts as a high-performance state index.
 
 ### `ignored_paths`
-Paths to ignore for translation (similar to gitignore).
+Paths to ignore for translation.
 - `id` (UUID, PK)
 - `project_id` (UUID, FK -> projects.id)
-- `pattern` (String) - Glob pattern
+- `pattern` (String) - Glob pattern, similar to `.gitignore`
 
 ### `special_paths`
 Similar to `ignored_paths`, but for special purposes (e.g., disabling Analytics).
 - `id` (UUID, PK)
 - `project_id` (UUID, FK -> projects.id)
 - `purpose` (String) - e.g., 'disable_analytics'
-- `pattern` (String) - Glob pattern
+- `pattern` (String) - Glob pattern, similar to `.gitignore`
 
 ## Relationships
 - A **Project** has many **Languages**.
-- A **Languages** has many **Files**
+- A **Language** has many **Files**

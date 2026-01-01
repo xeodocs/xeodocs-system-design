@@ -23,6 +23,8 @@ A lightweight tool developed in Go installed in the translator's local environme
 
 Specific architectural decisions are delegated to their respective domains:
 
-*   **[Projects Architecture](../../domains/projects/architecture.md):** Defines Git strategies, branching models, and special file handling.
-*   **[Configuration Domain](../../domains/configuration/readme.md):** Defines system-wide settings management.
+*   **[Common Domain](../../domains/common):** Defines shared components, schemas, and standards (error handling, pagination).
+*   **[Configuration Domain](../../domains/configuration):** Defines system-wide dynamic settings management.
+*   **[Identity Domain](../../domains/identity/architecture):** Defines user management, authentication, and authorization.
+*   **[Projects Architecture](../../domains/projects/architecture):** Defines Git strategies, branching models, and special file handling.
 
